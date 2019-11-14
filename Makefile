@@ -16,5 +16,5 @@ debug:
 
 
 clean:
-	rm -f lzw part1 *.o binaryData.txt *.lzw
+	rm -f lzw part1 part2 *.o binaryData.txt *.lzw
 	
