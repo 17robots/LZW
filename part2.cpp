@@ -1,4 +1,4 @@
-#include "header.h"
+#include "header2.h"
 
 std::ofstream logger;
 
@@ -92,11 +92,7 @@ void processExpansion(char* filename) {
     readIn.close();
     // std::cout << "Saved String: " << s << "\n";
     std::vector<int> blocks;
-    for(int i = 0; i < s.size(); i+=12) {
-        if(s.size() - i < 12) break;
-        blocks.push_back(binaryString2Int(s.substr(i, 12)));
-    }
-    std::string decomopressed = decompress(blocks.begin(), blocks.end());
+    std::string decomopressed = decompress(s.begin(), s.end());
     std::cout << "Decompressed String: " << decomopressed << '\n';
 }
 
