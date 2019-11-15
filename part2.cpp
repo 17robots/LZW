@@ -91,8 +91,7 @@ void processExpansion(char* filename) {
         count++;
     }
     readIn.close();
-    // std::cout << "Saved String: " << s << "\n";
-    std::vector<int> blocks;
+    logger << s << "\n";
     std::string decomopressed = decompress(s);
     std::cout << "Decompressed String: " << decomopressed << '\n';
 }

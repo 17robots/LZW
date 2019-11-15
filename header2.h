@@ -46,44 +46,44 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
 
 int binaryString2Int(std::string p);
 
-std::string decompress(std::string begin) {
+// template <typename Iterator>
+std::string decompress(std::string bin) {
   // Build the dictionary.
   int dictSize = 256;
   int bits = 9;
   std::map<int,std::string> dictionary;
   for (int i = 0; i < 256; i++)
     dictionary[i] = std::string(1, i);
-  auto it = begin.begin();
-  std::string w(1, begin.at(0));
+  
+  std::string item = bin.substr(0, bits);
+  std::string w(1, binaryString2Int(item));
   std::string result = w;
-  // std::cout << result<<"???:::\n";
+
   std::string entry;
-  for ( int i = 0; i < begin.size(); i+=bits) {
-    std::string toConvert = begin.substr(i, bits);
+  for (int i = bits; i < bin.size(); i+= bits) {
+    std::string toConvert = bin.substr(i, bits);
     int k = binaryString2Int(toConvert);
-    // std::cout << toConvert << ": " << k << '\n' << "Dict Size: " << dictSize << " Dictionary Size: " << dictionary.size() << '\n';
+    std::cout << toConvert << ": " << k << '\n';
+    std::cout << "Dict Size: " << dictSize << "\nMax Size: " << pow(2, bits) - 1 << '\n';
     if (dictionary.count(k))
       entry = dictionary[k];
-    else if (k == dictSize) {
+    else if (k == dictSize)
       entry = w + w[0];
-      // bits++;
-    } else {
+    else
       throw "Bad compressed k";
-      // std::cout << "there was a bad k but we are continuing\n";
-    }
  
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size()<=pow(2, bits))
+    int max = pow(2, bits) - 1;
+    if (dictionary.size()<=max) {
       dictionary[dictSize++] = w + entry[0];
-    else {
+    } else {
       if(bits < 16) {
         bits++;
         dictionary[dictSize++] = w + entry[0];
       }
     }
- 
     w = entry;
   }
   return result;
