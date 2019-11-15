@@ -45,36 +45,37 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
 }
 
 int binaryString2Int(std::string p);
- 
-// Decompress a list of output ks to a string.
-// "begin" and "end" must form a valid range of ints
-template <typename Iterator>
-std::string decompress(Iterator begin, Iterator end) {
+
+std::string decompress(std::string begin) {
   // Build the dictionary.
   int dictSize = 256;
   int bits = 9;
   std::map<int,std::string> dictionary;
   for (int i = 0; i < 256; i++)
     dictionary[i] = std::string(1, i);
- 
-  std::string w(1, *begin++);
+  auto it = begin.begin();
+  std::string w(1, begin.at(0));
   std::string result = w;
   // std::cout << result<<"???:::\n";
   std::string entry;
-  for ( ; begin != end; begin+=bits) {
-    std::string toConvert = std::string(*(begin + bits));
+  for ( int i = 0; i < begin.size(); i+=bits) {
+    std::string toConvert = begin.substr(i, bits);
     int k = binaryString2Int(toConvert);
+    // std::cout << toConvert << ": " << k << '\n' << "Dict Size: " << dictSize << " Dictionary Size: " << dictionary.size() << '\n';
     if (dictionary.count(k))
       entry = dictionary[k];
-    else if (k == dictSize)
+    else if (k == dictSize) {
       entry = w + w[0];
-    else
+      // bits++;
+    } else {
       throw "Bad compressed k";
+      // std::cout << "there was a bad k but we are continuing\n";
+    }
  
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size()<pow(2, bits))
+    if (dictionary.size()<=pow(2, bits))
       dictionary[dictSize++] = w + entry[0];
     else {
       if(bits < 16) {

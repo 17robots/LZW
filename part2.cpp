@@ -12,7 +12,7 @@ void printHelp() {
 }
 
 void processCompression(char* filename) {
-    int bits = 12;
+    int bits = 9;
     std::ifstream readIn;
     readIn.open(filename, std::ios::binary);
     if(!readIn) {
@@ -32,6 +32,7 @@ void processCompression(char* filename) {
     compress(memblock, std::back_inserter(compressed));
     std::string bcode = "";
     for(std::vector<int>::iterator it = compressed.begin() ; it != compressed.end(); ++it) {
+        if(*it >= pow(2, bits)) ++bits;
         bcode += int2BinaryString(*it, bits);
     }
     logger << "String to Write " << bcode << '\n';
@@ -92,7 +93,7 @@ void processExpansion(char* filename) {
     readIn.close();
     // std::cout << "Saved String: " << s << "\n";
     std::vector<int> blocks;
-    std::string decomopressed = decompress(s.begin(), s.end());
+    std::string decomopressed = decompress(s);
     std::cout << "Decompressed String: " << decomopressed << '\n';
 }
 
