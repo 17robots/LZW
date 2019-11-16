@@ -32,10 +32,9 @@ void processCompression(char* filename) {
     compress(memblock, std::back_inserter(compressed));
     std::string bcode = "";
     for(std::vector<int>::iterator it = compressed.begin() ; it != compressed.end(); ++it) {
-        if(*it >= pow(2, bits)) ++bits;
+        if(*it >= pow(2, bits) - 1) ++bits;
         bcode += int2BinaryString(*it, bits);
     }
-    logger << "String to Write " << bcode << '\n';
     std::ofstream writeOut;
     writeOut.open(std::string(filename) + ".lzw", std::ios::binary);
     std::string zeroes = "00000000";
@@ -91,7 +90,6 @@ void processExpansion(char* filename) {
         count++;
     }
     readIn.close();
-    logger << s << "\n";
     std::string decomopressed = decompress(s);
     std::cout << "Decompressed String: " << decomopressed << '\n';
 }
@@ -102,7 +100,7 @@ int main(int argc, char** argv) {
         return 0;
     }
     logger.open("log.txt", std::ios::out);
-    std::ofstream logger;
+    // std::ofstream logger;
     switch(argv[1][0]) {
         case 'h': case 'H':
             printHelp();

@@ -11,9 +11,8 @@ template <typename Iterator>
 Iterator compress(const std::string &uncompressed, Iterator result) {
   // Build the dictionary.
   int dictSize = 256;
-  int bits = 9;
   std::map<std::string,int> dictionary;
-  for (int i = 0; i < dictSize; i++)
+  for (int i = 0; i < 256; i++)
     dictionary[std::string(1, i)] = i;
  
   std::string w;
@@ -26,14 +25,8 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
     else {
       *result++ = dictionary[w];
       // Add wc to the dictionary. Assuming the size is 4096!!!
-      if (dictionary.size()<pow(2, bits))
+      if (dictionary.size()<4096)
          dictionary[wc] = dictSize++;
-      else {
-        if(bits < 16) {
-          bits++;
-          dictionary[wc] = dictSize++;
-        }
-      }
       w = std::string(1, c);
     }
   }
@@ -43,28 +36,23 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
     *result++ = dictionary[w];
   return result;
 }
+ 
+// Decompress a list of output ks to a string.
+// "begin" and "end" must form a valid range of ints
 
-int binaryString2Int(std::string p);
-
-// template <typename Iterator>
-std::string decompress(std::string bin) {
+std::string decompress(Iterator begin, Iterator end) {
   // Build the dictionary.
   int dictSize = 256;
-  int bits = 9;
   std::map<int,std::string> dictionary;
   for (int i = 0; i < 256; i++)
     dictionary[i] = std::string(1, i);
-  
-  std::string item = bin.substr(0, bits);
-  std::string w(1, binaryString2Int(item));
+ 
+  std::string w(1, *begin++);
   std::string result = w;
-
+  std::cout << result<<"???:::\n";
   std::string entry;
-  for (int i = bits; i < bin.size(); i+= bits) {
-    std::string toConvert = bin.substr(i, bits);
-    int k = binaryString2Int(toConvert);
-    std::cout << toConvert << ": " << k << '\n';
-    std::cout << "Dict Size: " << dictSize << "\nMax Size: " << pow(2, bits) - 1 << '\n';
+  for ( ; begin != end; begin++) {
+    int k = *begin;
     if (dictionary.count(k))
       entry = dictionary[k];
     else if (k == dictSize)
@@ -75,14 +63,9 @@ std::string decompress(std::string bin) {
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size()<pow(2, bits)) {
+    if (dictionary.size()<4096)
       dictionary[dictSize++] = w + entry[0];
-    } else {
-      if(bits < 16) {
-        bits++;
-        dictionary[dictSize++] = w + entry[0];
-      }
-    }
+ 
     w = entry;
   }
   return result;
