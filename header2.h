@@ -75,8 +75,7 @@ std::string decompress(std::string bin) {
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    int max = pow(2, bits) - 1;
-    if (dictionary.size()<=max) {
+    if (dictionary.size()<pow(2, bits)) {
       dictionary[dictSize++] = w + entry[0];
     } else {
       if(bits < 16) {
