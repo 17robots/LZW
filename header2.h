@@ -3,14 +3,17 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <vector>
 #include <cmath>
+#include <vector>
 #include <sys/stat.h>
 
 template <typename Iterator>
 Iterator compress(const std::string &uncompressed, Iterator result) {
   // Build the dictionary.
   int dictSize = 256;
+  int bits = 9;
+  std::ofstream log2;
+  log2.open("log2.txt", std::ios::binary);
   std::map<std::string,int> dictionary;
   for (int i = 0; i < 256; i++)
     dictionary[std::string(1, i)] = i;
@@ -25,8 +28,15 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
     else {
       *result++ = dictionary[w];
       // Add wc to the dictionary. Assuming the size is 4096!!!
-      if (dictionary.size()<4096)
+      if (dictionary.size()<pow(2,bits))
          dictionary[wc] = dictSize++;
+      else {
+        if(bits < 16) {
+            bits++;
+            dictionary[wc] = dictSize++;
+        }
+    }
+      log2 << dictSize << ": " << wc << '\n';
       w = std::string(1, c);
     }
   }
@@ -39,20 +49,22 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
  
 // Decompress a list of output ks to a string.
 // "begin" and "end" must form a valid range of ints
-
+template <typename Iterator>
 std::string decompress(Iterator begin, Iterator end) {
   // Build the dictionary.
   int dictSize = 256;
+  int bits = 9;
   std::map<int,std::string> dictionary;
   for (int i = 0; i < 256; i++)
     dictionary[i] = std::string(1, i);
  
   std::string w(1, *begin++);
   std::string result = w;
-  std::cout << result<<"???:::\n";
+//   std::cout << result<<"???:::\n";
   std::string entry;
   for ( ; begin != end; begin++) {
     int k = *begin;
+    // std::cout << *begin << '\n';
     if (dictionary.count(k))
       entry = dictionary[k];
     else if (k == dictSize)
@@ -63,9 +75,8 @@ std::string decompress(Iterator begin, Iterator end) {
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size()<4096)
+    if (dictionary.size()<pow(2, 16))
       dictionary[dictSize++] = w + entry[0];
- 
     w = entry;
   }
   return result;

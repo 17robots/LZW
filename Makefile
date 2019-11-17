@@ -3,18 +3,14 @@ CC=g++
 lzw: lzw.o
 	$(CC) lzw.cpp -o lzw
 
-part1: part1.o
-	$(CC) part1.cpp -o part1
-
-part2: part2.o
-	$(CC) part2.cpp -o part2
+lzwm: lzwm.o
+	$(CC) lzwm.cpp -o lzwm
 
 debug: 
 	$(CC) lzw.cpp -g -o lzw
-	$(CC) part1.cpp -g -o part1
-	$(CC) part2.cpp -g -o part2
+	$(CC) part1.cpp -g -o lzwm
 
 
 clean:
-	rm -f lzw part1 part2 *.o binaryData.txt *.lzw
+	rm -f lzw lzwm *.o binaryData.txt *.lzw *.lzw2 *.lzw22
 	

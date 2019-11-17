@@ -32,13 +32,16 @@ void processCompression(char* filename) {
     compress(memblock, std::back_inserter(compressed));
     std::string bcode = "";
     for(std::vector<int>::iterator it = compressed.begin() ; it != compressed.end(); ++it) {
-        if(*it >= pow(2, bits) - 1) ++bits;
+        // logger << *it << ' ';
+        if(*it >= pow(2, bits)) bits++;
+        logger << "Converting " << *it << " to " << bits << " binary: " << int2BinaryString(*it, bits) << '\n';
         bcode += int2BinaryString(*it, bits);
     }
+
     std::ofstream writeOut;
-    writeOut.open(std::string(filename) + ".lzw", std::ios::binary);
+    writeOut.open(std::string(filename) + ".lzw2", std::ios::binary);
     std::string zeroes = "00000000";
-    if(bcode.size() %8 != 0) bcode += zeroes.substr(0, 8-bcode.size()%8);
+    if(bcode.size() % 8 != 0) bcode += zeroes.substr(0, 8-bcode.size()%8);
     int b;
     for(int i = 0; i < bcode.size(); i += 8) {
         b = 1;
@@ -46,6 +49,7 @@ void processCompression(char* filename) {
             b = b<<1;
             if(bcode.at(i + j) == '1') b += 1;
         }
+
         char c = (char) (b & 255);
         writeOut.write(&c, 1);
     }
@@ -53,7 +57,7 @@ void processCompression(char* filename) {
 }
 
 void processExpansion(char* filename) {
-    if(std::string(filename).substr(std::string(filename).length() - 4) != ".lzw") {
+    if(std::string(filename).substr(std::string(filename).length() - 5) != ".lzw2") {
         std::cout << "Cannot expand non lzw file. Please run again with lzw file.\n";
         return;
     }
@@ -65,6 +69,8 @@ void processExpansion(char* filename) {
         return;
     }
 
+    std::ofstream outFile;
+    outFile.open(std::string(filename) + "2", std::ios::binary);
     struct stat filestatus;
     stat(filename, &filestatus);
     long fsize = filestatus.st_size;
@@ -90,8 +96,20 @@ void processExpansion(char* filename) {
         count++;
     }
     readIn.close();
-    std::string decomopressed = decompress(s);
-    std::cout << "Decompressed String: " << decomopressed << '\n';
+
+    std::vector<int> blocks;
+    int dictSize = 256;
+    int bits = 9;
+    for(int i = 0; i < s.size(); i+=bits) {
+        logger << s.substr(i, bits) << ": ";
+        if(s.size() - i < bits) break;
+        int toPush = binaryString2Int(s.substr(i, bits));
+        logger << toPush << '\n';
+        if(toPush >= pow(2, bits)) { bits++; dictSize *= 2; }
+        blocks.push_back(toPush);
+    }
+    std::string decomopressed = decompress(blocks.begin(), blocks.end());
+    outFile << decomopressed;
 }
 
 int main(int argc, char** argv) {
@@ -100,7 +118,7 @@ int main(int argc, char** argv) {
         return 0;
     }
     logger.open("log.txt", std::ios::out);
-    // std::ofstream logger;
+    std::ofstream logger;
     switch(argv[1][0]) {
         case 'h': case 'H':
             printHelp();
