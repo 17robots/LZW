@@ -1,5 +1,7 @@
 CC=g++
 
+PHONY all: lzw lzwm
+
 lzw: lzw.o
 	$(CC) lzw.cpp -o lzw
 

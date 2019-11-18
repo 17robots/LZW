@@ -3,11 +3,11 @@
 std::ofstream logger;
 
 void printHelp() {
-    std::cout << "Help for lzw command:\n";
-    std::cout << "\nUsage: lzw [option] [filename]\n";
+    std::cout << "Help for lzwm command:\n";
+    std::cout << "\nUsage: lzwm [option] [filename]\n";
     std::cout << "Available Options:\n";
     std::cout << "e or E: - expand a lzw file and print out the expanded message\n\n";
-    std::cout << "c or C: - compress a file and export out to a file called [filename].lzw\n\n";
+    std::cout << "c or C: - compress a file and export out to a file called [filename].lzw2\n\n";
     std::cout << "h or H: - print this help message\n\n";
 }
 
@@ -105,7 +105,7 @@ void processExpansion(char* filename) {
         if(s.size() - i < bits) break;
         int toPush = binaryString2Int(s.substr(i, bits));
         logger << toPush << '\n';
-        if(toPush >= pow(2, bits)) { bits++; dictSize *= 2; }
+        if(toPush == pow(2, bits)) { bits++; dictSize *= 2; }
         blocks.push_back(toPush);
     }
     std::string decomopressed = decompress(blocks.begin(), blocks.end());

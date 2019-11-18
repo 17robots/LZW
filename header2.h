@@ -36,11 +36,10 @@ Iterator compress(const std::string &uncompressed, Iterator result) {
             dictionary[wc] = dictSize++;
         }
     }
-      log2 << dictSize << ": " << wc << '\n';
+      log2 << dictSize - 1 << ": " << wc << '\n';
       w = std::string(1, c);
     }
   }
- 
   // Output the code for w.
   if (!w.empty())
     *result++ = dictionary[w];
@@ -62,9 +61,11 @@ std::string decompress(Iterator begin, Iterator end) {
   std::string result = w;
 //   std::cout << result<<"???:::\n";
   std::string entry;
+  std::ofstream log2;
+  log2.open("log2.txt", std::ios::binary);
   for ( ; begin != end; begin++) {
     int k = *begin;
-    // std::cout << *begin << '\n';
+    log2 << k << '\n';
     if (dictionary.count(k))
       entry = dictionary[k];
     else if (k == dictSize)
@@ -79,6 +80,7 @@ std::string decompress(Iterator begin, Iterator end) {
       dictionary[dictSize++] = w + entry[0];
     w = entry;
   }
+  log2.close();
   return result;
 }
 
