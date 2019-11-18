@@ -10,7 +10,7 @@ lzwm: lzwm.o
 
 debug: 
 	$(CC) lzw.cpp -g -o lzw
-	$(CC) part1.cpp -g -o lzwm
+	$(CC) lzwm.cpp -g -o lzwm
 
 
 clean:

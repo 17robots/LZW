@@ -75,7 +75,7 @@ void processExpansion(char* filename) {
     stat(filename, &filestatus);
     long fsize = filestatus.st_size;
 
-    char c2[fsize];
+    char *c2 = new char[fsize];
     readIn.read(c2, fsize);
     std::string zeroes = "00000000";
     std::string s = "";
