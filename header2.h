@@ -5,6 +5,7 @@
 #include <iterator>
 #include <cmath>
 #include <vector>
+#include <set>
 #include <sys/stat.h>
 
 template <typename Iterator>
@@ -62,7 +63,7 @@ std::string decompress(Iterator begin, Iterator end) {
 //   std::cout << result<<"???:::\n";
   std::string entry;
   std::ofstream log2;
-  log2.open("log2.txt", std::ios::binary);
+  // log2.open("log2.txt", std::ios::binary);
   for ( ; begin != end; begin++) {
     int k = *begin;
     log2 << k << '\n';
@@ -76,12 +77,34 @@ std::string decompress(Iterator begin, Iterator end) {
     result += entry;
  
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size()<pow(2, 16))
+    if (dictionary.size()<=pow(2, 16))
       dictionary[dictSize++] = w + entry[0];
     w = entry;
   }
   log2.close();
   return result;
+}
+
+std::string decompress(std::string s) {
+  int dictSize = 256;
+  int bits = 9;
+  std::map<int, std::string> dictionary;
+  for(int i = 0; i < dictSize; ++i)
+    dictionary[i] = std::string(1, i);
+  std::string w(1, binaryString2Int(s.substr(0, bits)));
+  std::string result = w;
+  std::string entry;
+  for(int i = 0; i < s.size(); ++i) {
+    if(s.size() - i <= bits) break;
+    int k = binaryString2Int(s.substr(i, bits));
+    if(dictionary.count(k))
+      entry = dictionary[k];
+    else if (k == dictSize)
+      entry = w + w[0];
+    else
+      throw "bad compressed k";
+    
+  }
 }
 
 std::string int2BinaryString(int c, int cl) {

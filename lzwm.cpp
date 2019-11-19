@@ -33,7 +33,7 @@ void processCompression(char* filename) {
     std::string bcode = "";
     for(std::vector<int>::iterator it = compressed.begin() ; it != compressed.end(); ++it) {
         // logger << *it << ' ';
-        if(*it >= pow(2, bits)) bits++;
+        if(*it >= pow(2, bits)) {bits++; logger << "Switching bits from " << bits - 1 << " to " << bits << '\n'; }
         logger << "Converting " << *it << " to " << bits << " binary: " << int2BinaryString(*it, bits) << '\n';
         bcode += int2BinaryString(*it, bits);
     }
@@ -99,13 +99,14 @@ void processExpansion(char* filename) {
 
     std::vector<int> blocks;
     int dictSize = 256;
+    std::set<int> uniqueNumbers;
     int bits = 9;
     for(int i = 0; i < s.size(); i+=bits) {
-        logger << s.substr(i, bits) << ": ";
         if(s.size() - i < bits) break;
+        if(unique == dictSize) {bits++;}
         int toPush = binaryString2Int(s.substr(i, bits));
         logger << toPush << '\n';
-        if(toPush == pow(2, bits)) { bits++; dictSize *= 2; }
+        if()
         blocks.push_back(toPush);
     }
     std::string decomopressed = decompress(blocks.begin(), blocks.end());
