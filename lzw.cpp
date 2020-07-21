@@ -65,10 +65,12 @@ void processExpansion(char* filename) {
     }
 
     struct stat filestatus;
+    std::ofstream outFile;
+    outFile.open(std::string(filename) + "2", std::ios::binary);
     stat(filename, &filestatus);
     long fsize = filestatus.st_size;
 
-    char c2[fsize];
+    char* c2 = new char[fsize];
     readIn.read(c2, fsize);
     std::string zeroes = "00000000";
     std::string s = "";
@@ -95,8 +97,8 @@ void processExpansion(char* filename) {
         if(s.size() - i < 12) break;
         blocks.push_back(binaryString2Int(s.substr(i, 12)));
     }
-    std::string decomopressed = decompress(blocks.begin(), blocks.end());
-    std::cout << "Decompressed String: " << decomopressed << '\n';
+    std::string decompressed = decompress(blocks.begin(), blocks.end());
+    outFile << decompressed << '\n';
 }
 
 int main(int argc, char** argv) {

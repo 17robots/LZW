@@ -1,6 +1,6 @@
 #include "header2.h"
 
-std::ofstream logger;
+std::ofstream logger, log5;
 
 void printHelp() {
     std::cout << "Help for lzwm command:\n";
@@ -33,7 +33,7 @@ void processCompression(char* filename) {
     std::string bcode = "";
     for(std::vector<int>::iterator it = compressed.begin() ; it != compressed.end(); ++it) {
         // logger << *it << ' ';
-        if(*it >= pow(2, bits)) {bits++; logger << "Switching bits from " << bits - 1 << " to " << bits << '\n'; }
+        if(*it >= pow(2, bits)) {bits++;}
         logger << "Converting " << *it << " to " << bits << " binary: " << int2BinaryString(*it, bits) << '\n';
         bcode += int2BinaryString(*it, bits);
     }
@@ -70,12 +70,12 @@ void processExpansion(char* filename) {
     }
 
     std::ofstream outFile;
-    outFile.open(std::string(filename) + "2", std::ios::binary);
+    outFile.open(std::string(filename) + "2M", std::ios::out);
     struct stat filestatus;
     stat(filename, &filestatus);
     long fsize = filestatus.st_size;
 
-    char *c2 = new char[fsize];
+    char* c2 = new char[fsize];
     readIn.read(c2, fsize);
     std::string zeroes = "00000000";
     std::string s = "";
@@ -96,21 +96,8 @@ void processExpansion(char* filename) {
         count++;
     }
     readIn.close();
-
-    std::vector<int> blocks;
-    int dictSize = 256;
-    std::set<int> uniqueNumbers;
-    int bits = 9;
-    for(int i = 0; i < s.size(); i+=bits) {
-        if(s.size() - i < bits) break;
-        if(unique == dictSize) {bits++;}
-        int toPush = binaryString2Int(s.substr(i, bits));
-        logger << toPush << '\n';
-        if()
-        blocks.push_back(toPush);
-    }
-    std::string decomopressed = decompress(blocks.begin(), blocks.end());
-    outFile << decomopressed;
+    std::string decompressed = decompress(s);
+    outFile << decompressed << '\n';
 }
 
 int main(int argc, char** argv) {
@@ -119,7 +106,8 @@ int main(int argc, char** argv) {
         return 0;
     }
     logger.open("log.txt", std::ios::out);
-    std::ofstream logger;
+    log5.open("log4.txt", std::ios::out);
+    std::ofstream log2;
     switch(argv[1][0]) {
         case 'h': case 'H':
             printHelp();
